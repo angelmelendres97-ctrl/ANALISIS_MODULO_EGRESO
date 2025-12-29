@@ -82,29 +82,60 @@
                             @foreach ($this->directorioEntries as $providerKey => $entries)
                                 <div class="rounded-xl border border-slate-200 bg-white p-4">
                                     <div class="text-sm font-semibold text-slate-800">
-                                        Proveedor {{ explode('|', $providerKey)[0] ?? 'N/D' }}
+                                        Proveedor {{ $entries[0]['proveedor'] ?? (explode('|', $providerKey)[0] ?? 'N/D') }}
                                     </div>
-                                    <div class="mt-3 space-y-2">
-                                        @foreach ($entries as $entry)
-                                            @php
-                                                $vence = $entry['fecha_vencimiento'] ?? null;
-                                                $venceLabel = $vence ? \Illuminate\Support\Carbon::parse($vence)->format('Y-m-d') : 'N/D';
-                                            @endphp
-                                            <div class="rounded-lg border border-slate-100 bg-slate-50 p-3 text-sm text-slate-700">
-                                                <div class="flex items-center justify-between font-semibold">
-                                                    <span>Factura {{ $entry['factura'] ?? 'N/D' }}</span>
-                                                    <span class="text-amber-700">${{ number_format((float) ($entry['abono'] ?? 0), 2, '.', ',') }}</span>
-                                                </div>
-                                                <div class="mt-1 text-xs text-slate-500">
-                                                    Vence: {{ $venceLabel }}
-                                                    · Moneda: {{ $entry['moneda'] ?? 'N/D' }}
-                                                    · Cotización: {{ number_format((float) ($entry['cotizacion'] ?? 1), 4, '.', ',') }}
-                                                </div>
-                                                <div class="mt-1 text-xs text-slate-500">
-                                                    Detalle: {{ $entry['detalle'] ?? 'N/D' }}
-                                                </div>
-                                            </div>
-                                        @endforeach
+                                    <div class="mt-3 overflow-auto rounded-lg border border-slate-200">
+                                        <table class="w-full text-xs text-slate-600">
+                                            <thead class="bg-slate-50 text-[11px] uppercase text-slate-500">
+                                                <tr>
+                                                    <th class="px-3 py-2 text-left">Proveedor</th>
+                                                    <th class="px-3 py-2 text-left">Tipo</th>
+                                                    <th class="px-3 py-2 text-left">Factura</th>
+                                                    <th class="px-3 py-2 text-left">Vence</th>
+                                                    <th class="px-3 py-2 text-left">Detalle</th>
+                                                    <th class="px-3 py-2 text-right">Cotización</th>
+                                                    <th class="px-3 py-2 text-right">Débito ML</th>
+                                                    <th class="px-3 py-2 text-right">Crédito ML</th>
+                                                    <th class="px-3 py-2 text-right">Débito ME</th>
+                                                    <th class="px-3 py-2 text-right">Crédito ME</th>
+                                                    <th class="px-3 py-2 text-center">Diario</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody class="divide-y divide-slate-100">
+                                                @foreach ($entries as $entry)
+                                                    @php
+                                                        $vence = $entry['fecha_vencimiento'] ?? null;
+                                                    @endphp
+                                                    <tr>
+                                                        <td class="px-3 py-2 font-semibold text-slate-700">{{ $entry['proveedor'] ?? 'N/D' }}</td>
+                                                        <td class="px-3 py-2">{{ $entry['tipo'] ?? 'N/D' }}</td>
+                                                        <td class="px-3 py-2">{{ $entry['factura'] ?? 'N/D' }}</td>
+                                                        <td class="px-3 py-2">
+                                                            {{ $vence ? \Illuminate\Support\Carbon::parse($vence)->format('Y-m-d') : 'N/D' }}
+                                                        </td>
+                                                        <td class="px-3 py-2 text-slate-500">{{ $entry['detalle'] ?? 'N/D' }}</td>
+                                                        <td class="px-3 py-2 text-right">
+                                                            {{ number_format((float) ($entry['cotizacion'] ?? 1), 4, '.', ',') }}
+                                                        </td>
+                                                        <td class="px-3 py-2 text-right">
+                                                            {{ number_format((float) ($entry['debito_local'] ?? 0), 2, '.', ',') }}
+                                                        </td>
+                                                        <td class="px-3 py-2 text-right">
+                                                            {{ number_format((float) ($entry['credito_local'] ?? 0), 2, '.', ',') }}
+                                                        </td>
+                                                        <td class="px-3 py-2 text-right">
+                                                            {{ number_format((float) ($entry['debito_extranjera'] ?? 0), 2, '.', ',') }}
+                                                        </td>
+                                                        <td class="px-3 py-2 text-right">
+                                                            {{ number_format((float) ($entry['credito_extranjera'] ?? 0), 2, '.', ',') }}
+                                                        </td>
+                                                        <td class="px-3 py-2 text-center text-emerald-700">
+                                                            {{ ($entry['diario_generado'] ?? false) ? 'Sí' : 'No' }}
+                                                        </td>
+                                                    </tr>
+                                                @endforeach
+                                            </tbody>
+                                        </table>
                                     </div>
                                 </div>
                             @endforeach
@@ -122,36 +153,64 @@
                             @foreach ($this->diarioEntries as $providerKey => $entries)
                                 <div class="rounded-xl border border-slate-200 bg-white p-4">
                                     <div class="text-sm font-semibold text-slate-800">
-                                        Proveedor {{ explode('|', $providerKey)[0] ?? 'N/D' }}
+                                        Proveedor {{ $entries[0]['beneficiario'] ?? (explode('|', $providerKey)[0] ?? 'N/D') }}
                                     </div>
-                                    <div class="mt-3 space-y-2">
-                                        @foreach ($entries as $entry)
-                                            <div class="grid gap-2 rounded-lg border border-slate-100 bg-slate-50 p-3 text-sm text-slate-700 md:grid-cols-4">
-                                                <div>
-                                                    <div class="text-xs uppercase text-slate-500">Cuenta</div>
-                                                    <div class="font-semibold">{{ $entry['cuenta'] ?? 'N/D' }}</div>
-                                                    <div class="text-xs text-slate-500">{{ $entry['cuenta_nombre'] ?? '' }}</div>
-                                                </div>
-                                                <div class="md:col-span-2">
-                                                    <div class="text-xs uppercase text-slate-500">Detalle</div>
-                                                    <div class="font-semibold">{{ $entry['detalle'] ?? 'N/D' }}</div>
-                                                    @if (!empty($entry['cheque']))
-                                                        <div class="text-xs text-slate-500">
-                                                            Cheque: {{ $entry['cheque'] }} · Formato: {{ $entry['formato_cheque'] ?? 'N/D' }}
-                                                        </div>
-                                                    @endif
-                                                </div>
-                                                <div class="text-right">
-                                                    <div class="text-xs uppercase text-slate-500">Débito / Crédito</div>
-                                                    <div class="font-semibold text-emerald-700">
-                                                        ${{ number_format((float) ($entry['debito'] ?? 0), 2, '.', ',') }}
-                                                    </div>
-                                                    <div class="font-semibold text-rose-600">
-                                                        ${{ number_format((float) ($entry['credito'] ?? 0), 2, '.', ',') }}
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        @endforeach
+                                    <div class="mt-3 overflow-auto rounded-lg border border-slate-200">
+                                        <table class="w-full text-xs text-slate-600">
+                                            <thead class="bg-slate-50 text-[11px] uppercase text-slate-500">
+                                                <tr>
+                                                    <th class="px-3 py-2 text-left">Fila</th>
+                                                    <th class="px-3 py-2 text-left">Cuenta contable</th>
+                                                    <th class="px-3 py-2 text-left">Nombre</th>
+                                                    <th class="px-3 py-2 text-left">Documento</th>
+                                                    <th class="px-3 py-2 text-right">Cotización</th>
+                                                    <th class="px-3 py-2 text-right">Débito ML</th>
+                                                    <th class="px-3 py-2 text-right">Crédito ML</th>
+                                                    <th class="px-3 py-2 text-right">Débito ME</th>
+                                                    <th class="px-3 py-2 text-right">Crédito ME</th>
+                                                    <th class="px-3 py-2 text-left">Beneficiario</th>
+                                                    <th class="px-3 py-2 text-left">Cuenta bancaria</th>
+                                                    <th class="px-3 py-2 text-left">Banco/Cheque</th>
+                                                    <th class="px-3 py-2 text-left">Fecha venc.</th>
+                                                    <th class="px-3 py-2 text-left">Formato cheque</th>
+                                                    <th class="px-3 py-2 text-left">Código contable</th>
+                                                    <th class="px-3 py-2 text-left">Detalle</th>
+                                                    <th class="px-3 py-2 text-left">Centro costo</th>
+                                                    <th class="px-3 py-2 text-left">Centro actividad</th>
+                                                    <th class="px-3 py-2 text-left">Directorio</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody class="divide-y divide-slate-100">
+                                                @foreach ($entries as $entry)
+                                                    @php
+                                                        $vence = $entry['fecha_vencimiento'] ?? null;
+                                                    @endphp
+                                                    <tr>
+                                                        <td class="px-3 py-2 font-semibold text-slate-700">{{ $entry['fila'] ?? '-' }}</td>
+                                                        <td class="px-3 py-2">{{ $entry['cuenta'] ?? 'N/D' }}</td>
+                                                        <td class="px-3 py-2 text-slate-500">{{ $entry['cuenta_nombre'] ?? 'N/D' }}</td>
+                                                        <td class="px-3 py-2">{{ $entry['documento'] ?? 'N/D' }}</td>
+                                                        <td class="px-3 py-2 text-right">{{ number_format((float) ($entry['cotizacion'] ?? 1), 4, '.', ',') }}</td>
+                                                        <td class="px-3 py-2 text-right">{{ number_format((float) ($entry['debito'] ?? 0), 2, '.', ',') }}</td>
+                                                        <td class="px-3 py-2 text-right">{{ number_format((float) ($entry['credito'] ?? 0), 2, '.', ',') }}</td>
+                                                        <td class="px-3 py-2 text-right">{{ number_format((float) ($entry['debito_extranjera'] ?? 0), 2, '.', ',') }}</td>
+                                                        <td class="px-3 py-2 text-right">{{ number_format((float) ($entry['credito_extranjera'] ?? 0), 2, '.', ',') }}</td>
+                                                        <td class="px-3 py-2">{{ $entry['beneficiario'] ?? 'N/D' }}</td>
+                                                        <td class="px-3 py-2">{{ $entry['cuenta_bancaria'] ?? 'N/D' }}</td>
+                                                        <td class="px-3 py-2">{{ $entry['banco_cheque'] ?? 'N/D' }}</td>
+                                                        <td class="px-3 py-2">
+                                                            {{ $vence ? \Illuminate\Support\Carbon::parse($vence)->format('Y-m-d') : 'N/D' }}
+                                                        </td>
+                                                        <td class="px-3 py-2">{{ $entry['formato_cheque'] ?? 'N/D' }}</td>
+                                                        <td class="px-3 py-2">{{ $entry['codigo_contable'] ?? 'N/D' }}</td>
+                                                        <td class="px-3 py-2 text-slate-500">{{ $entry['detalle'] ?? 'N/D' }}</td>
+                                                        <td class="px-3 py-2">{{ $entry['centro_costo'] ?? 'N/D' }}</td>
+                                                        <td class="px-3 py-2">{{ $entry['centro_actividad'] ?? 'N/D' }}</td>
+                                                        <td class="px-3 py-2">{{ $entry['directorio'] ?? 'N/D' }}</td>
+                                                    </tr>
+                                                @endforeach
+                                            </tbody>
+                                        </table>
                                     </div>
                                 </div>
                             @endforeach
