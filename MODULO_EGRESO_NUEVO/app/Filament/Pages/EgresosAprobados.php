@@ -11,7 +11,8 @@ use Filament\Tables\Concerns\InteractsWithTable;
 use Filament\Tables\Contracts\HasTable;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
-
+use Filament\Forms\Components\DatePicker;
+use Filament\Tables\Filters\Filter;
 class EgresosAprobados extends Page implements HasTable
 {
     use InteractsWithTable;
@@ -65,15 +66,23 @@ class EgresosAprobados extends Page implements HasTable
                     ->openUrlInNewTab(),
             ])
             ->filters([
-                Tables\Filters\Filter::make('fecha_aprobada')
+                Filter::make('fecha_aprobada')
                     ->form([
-                        Tables\Filters\Components\DatePicker::make('desde')->label('Desde'),
-                        Tables\Filters\Components\DatePicker::make('hasta')->label('Hasta'),
+                        DatePicker::make('desde')
+                            ->label('Desde'),
+                        DatePicker::make('hasta')
+                            ->label('Hasta'),
                     ])
                     ->query(function (Builder $query, array $data): Builder {
                         return $query
-                            ->when($data['desde'] ?? null, fn(Builder $q, $date) => $q->whereDate('aprobada_at', '>=', $date))
-                            ->when($data['hasta'] ?? null, fn(Builder $q, $date) => $q->whereDate('aprobada_at', '<=', $date));
+                            ->when(
+                                $data['desde'] ?? null,
+                                fn(Builder $q, $date) => $q->whereDate('aprobada_at', '>=', $date)
+                            )
+                            ->when(
+                                $data['hasta'] ?? null,
+                                fn(Builder $q, $date) => $q->whereDate('aprobada_at', '<=', $date)
+                            );
                     }),
             ]);
     }
