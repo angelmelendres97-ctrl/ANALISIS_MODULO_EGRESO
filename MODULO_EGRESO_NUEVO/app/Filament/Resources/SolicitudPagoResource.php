@@ -29,6 +29,7 @@ use Filament\Tables;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use App\Filament\Pages\SolicitudPagoFacturas;
+use App\Filament\Pages\RegistrarEgreso;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
@@ -1119,6 +1120,15 @@ class SolicitudPagoResource extends Resource
             ])
             ->actions([
                 Tables\Actions\ActionGroup::make([
+                    Tables\Actions\Action::make('registrarEgreso')
+                        ->label('Registrar egreso')
+                        ->icon('heroicon-o-document-text')
+                        ->color('primary')
+                        ->visible(fn(SolicitudPago $record) => strtoupper($record->estado ?? '') === 'APROBADA')
+                        ->url(fn(SolicitudPago $record) => RegistrarEgreso::getUrl([
+                            'record' => $record,
+                        ]))
+                        ->openUrlInNewTab(),
                     Tables\Actions\Action::make('verFacturas')
                         ->label('Ver facturas')
                         ->icon('heroicon-o-eye')
