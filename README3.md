@@ -3,22 +3,23 @@
 ## Flujo end-to-end del pago a proveedores
 ```mermaid
 flowchart TD
-    A[Inicio egreso en UI] --> B[Captura de empresa/sucursal/proveedor]
-    B --> C[Agrega facturas y retenciones al grid]
-    C --> D[Ingresa líneas contables (cuentas, montos, centros costo)]
-    D --> E[Validación de balance débitos/créditos]
-    E -->|Balanceado| F[Solicita secuenciales SAESECU]
-    E -->|No balanceado| X[Se bloquea guardado]
-    F --> G[Actualiza adjuntos pendientes con asto]
-    G --> H[Inserta cabecera SAEASTO]
-    H --> I[Inserta detalle SAEDIR (facturas)]
-    I --> J[Inserta detalle diario SAEDASI]
-    J --> K{¿Línea bancaria?}
-    K -->|Sí| L[Registra cheque SAEDCHC y actualiza SAECTAB]
-    K -->|No| M[Continúa]
-    L --> N[Commit]
-    M --> N[Commit]
-    N --> O[Respuesta Xajax actualiza UI]
+    A["Inicio egreso en UI"] --> B["Captura empresa / sucursal / proveedor"]
+    B --> C["Agrega facturas y retenciones al grid"]
+    C --> D["Ingresa líneas contables<br/>cuentas, montos, centros costo"]
+    D --> E{"Validación balance<br/>débitos/créditos"}
+    E -->|Balanceado| F["Solicita secuenciales SAESECU"]
+    E -->|No balanceado| X["Se bloquea guardado"]
+    F --> G["Actualiza adjuntos pendientes con asto"]
+    G --> H["Inserta cabecera SAEASTO"]
+    H --> I["Inserta detalle SAEDIR<br/>facturas"]
+    I --> J["Inserta detalle diario SAEDASI"]
+    J --> K{"¿Línea bancaria?"}
+    K -->|Sí| L["Registra cheque SAEDCHC<br/>y actualiza SAECTAB"]
+    K -->|No| M["Continúa"]
+    L --> N["Commit"]
+    M --> N["Commit"]
+    N --> O["Respuesta Xajax actualiza UI"]
+
 ```
 
 ### Explicación de cada etapa
@@ -54,24 +55,17 @@ El diagrama agrupa las principales validaciones previas al guardado. Las condici
 
 ## Diagrama de casos de uso
 ```mermaid
-usecaseDiagram
-    actor Administrador
-    actor Contador
-    actor Operador as "Usuario operativo"
-    actor SistemaExterno as "Sistema externo"
+flowchart LR
+    Operador["Usuario operativo"] --> UC1["Registrar egreso"]
+    Operador --> UC2["Adjuntar / consultar documentos"]
+    Operador --> UC4["Consultar facturas / retenciones"]
 
-    usecase UC1 as "Registrar egreso"
-    usecase UC2 as "Adjuntar/consultar documentos"
-    usecase UC3 as "Emitir cheque"
-    usecase UC4 as "Consultar facturas/retenciones"
+    Contador["Contador"] --> UC1
+    Contador --> UC3["Emitir cheque"]
 
-    Operador --> UC1
-    Operador --> UC2
-    Operador --> UC4
-    Contador --> UC1
-    Contador --> UC3
-    Administrador --> UC2
-    SistemaExterno --> UC4
+    Admin["Administrador"] --> UC2
+
+    Sistema["Sistema externo"] --> UC4
 ```
 
 ### Roles y responsabilidades
