@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\SolicitudPagoResource\Pages;
 
 use App\Filament\Resources\SolicitudPagoResource;
+use App\Filament\Pages\EgresosAprobados;
 use App\Filament\Pages\PresupuestoPagoProveedores;
 use Filament\Actions;
 use Filament\Resources\Components\Tab;
@@ -21,6 +22,11 @@ class ListSolicitudPagos extends ListRecords
                 ->icon('heroicon-o-document-plus')
                 ->color('primary')
                 ->url(PresupuestoPagoProveedores::getUrl()),
+            Actions\Action::make('egresos')
+                ->label('Registro de egresos')
+                ->icon('heroicon-o-banknotes')
+                ->color('gray')
+                ->url(EgresosAprobados::getUrl()),
         ];
     }
 
