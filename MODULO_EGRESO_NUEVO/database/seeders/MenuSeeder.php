@@ -49,6 +49,14 @@ class MenuSeeder extends Seeder
             'orden' => 4,
             'activo' => true,
         ]);
+
+        Menu::firstOrCreate([
+            'nombre' => 'Registro de Egresos',
+            'icono' => 'heroicon-o-banknotes',
+            'ruta' => '/admin/egresos/solicitudes-aprobadas',
+            'orden' => 5,
+            'activo' => true,
+        ]);
         
         // Asignar roles a menús
         // Dashboard visible para todos
