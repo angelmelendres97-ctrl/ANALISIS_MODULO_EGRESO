@@ -11,9 +11,16 @@
                     <div class="mt-1 text-lg font-bold text-slate-900">#{{ $this->solicitud->id }}</div>
                     <div class="text-sm text-slate-600">{{ $this->solicitud->motivo ?? 'Sin motivo' }}</div>
                 </div>
+                @php
+                    $estadoSolicitud = strtoupper($this->solicitud->estado ?? '');
+                    $estadoLabel = $estadoSolicitud === 'APROBADA'
+                        ? 'Aprobada y pendiente de egreso'
+                        : ($this->solicitud->estado ?? 'N/D');
+                    $estadoColor = $estadoSolicitud === 'APROBADA' ? 'text-amber-600' : 'text-emerald-700';
+                @endphp
                 <div class="rounded-xl border border-slate-200 bg-white p-4">
                     <div class="text-xs font-semibold uppercase tracking-wide text-slate-500">Estado</div>
-                    <div class="mt-1 text-lg font-bold text-emerald-700">{{ $this->solicitud->estado }}</div>
+                    <div class="mt-1 text-lg font-bold {{ $estadoColor }}">{{ $estadoLabel }}</div>
                 </div>
                 <div class="rounded-xl border border-slate-200 bg-white p-4">
                     <div class="text-xs font-semibold uppercase tracking-wide text-slate-500">Total facturas</div>
