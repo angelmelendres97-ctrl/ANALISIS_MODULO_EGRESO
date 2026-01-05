@@ -7,6 +7,7 @@ use App\Filament\Resources\SolicitudPagoResource;
 use App\Models\SolicitudPago;
 use App\Models\SolicitudPagoDetalle;
 use Filament\Actions\Action;
+use Filament\Actions\StaticAction;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
@@ -24,6 +25,7 @@ use Filament\Tables\Contracts\HasTable;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\HtmlString;
 
@@ -227,8 +229,14 @@ class RegistrarEgreso extends Page implements HasTable
                             ->success()
                             ->send();
                     })
-                    ->modalSubmitActionLabel('Generar'),
-            ]);
+                    ->visible(function (SolicitudPagoDetalle $record): bool {
+                        $key = $this->buildProviderKeyFromValues($record->proveedor_codigo, $record->proveedor_ruc);
+                        return empty($this->directorioEntries[$key] ?? []) && empty($this->diarioEntries[$key] ?? []);
+                    })
+                    ->modalSubmitAction(false)
+                    ->modalCancelAction(fn(StaticAction $action) => $action->label('Cancelar')),
+            ])
+            ->actionsColumnLabel('Acciones');
     }
 
     protected function registrarDirectorioYDiario(SolicitudPagoDetalle $record, array $data): void
@@ -460,6 +468,11 @@ class RegistrarEgreso extends Page implements HasTable
                     ])
                     ->columns(2),
             ])
+                ->submitAction(new HtmlString(Blade::render(<<<'BLADE'
+                    <x-filament::button type="submit" size="sm">
+                        Generar
+                    </x-filament::button>
+                BLADE)))
                 ->skippable(false),
         ];
     }
