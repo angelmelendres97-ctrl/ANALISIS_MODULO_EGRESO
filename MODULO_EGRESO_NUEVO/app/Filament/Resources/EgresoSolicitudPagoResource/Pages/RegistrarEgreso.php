@@ -210,9 +210,23 @@ class RegistrarEgreso extends Page implements HasTable
                         $key = $this->buildProviderKeyFromValues($record->proveedor_codigo, $record->proveedor_ruc);
                         return $this->facturasByProvider[$key] ?? [];
                     })
-                    ->view('filament.tables.columns.egreso-facturas'),
+                    ->view('filament.tables.columns.egreso-facturas-button'),
             ])
             ->actions([
+                Tables\Actions\Action::make('verFacturas')
+                    ->label('Facturas')
+                    ->icon('heroicon-o-clipboard-document-list')
+                    ->modalHeading(fn(SolicitudPagoDetalle $record) => 'Facturas - ' . ($record->proveedor_nombre ?? 'Proveedor'))
+                    ->modalContent(function (SolicitudPagoDetalle $record): \Illuminate\Contracts\View\View {
+                        $key = $this->buildProviderKeyFromValues($record->proveedor_codigo, $record->proveedor_ruc);
+
+                        return view('filament.tables.columns.egreso-facturas', [
+                            'facturas' => $this->facturasByProvider[$key] ?? [],
+                        ]);
+                    })
+                    ->modalCancelActionLabel('Cerrar')
+                    ->modalSubmitAction(false)
+                    ->hidden(),
                 Tables\Actions\Action::make('generarDirectorio')
                     ->label('Generar Directorio y Diario')
                     ->icon('heroicon-o-document-text')
@@ -227,8 +241,10 @@ class RegistrarEgreso extends Page implements HasTable
                             ->success()
                             ->send();
                     })
-                    ->modalSubmitActionLabel('Generar'),
-            ]);
+                    ->modalSubmitAction(false)
+                    ->visible(fn(SolicitudPagoDetalle $record): bool => ! $this->hasDirectorioForProvider($record)),
+            ])
+            ->actionsColumnLabel('Acciones');
     }
 
     protected function registrarDirectorioYDiario(SolicitudPagoDetalle $record, array $data): void
@@ -460,8 +476,21 @@ class RegistrarEgreso extends Page implements HasTable
                     ])
                     ->columns(2),
             ])
+                ->submitAction(
+                    Action::make('submitDirectorio')
+                        ->label('Generar')
+                        ->submit('callMountedTableAction')
+                        ->color('primary')
+                )
                 ->skippable(false),
         ];
+    }
+
+    protected function hasDirectorioForProvider(SolicitudPagoDetalle $record): bool
+    {
+        $providerKey = $this->buildProviderKeyFromValues($record->proveedor_codigo, $record->proveedor_ruc);
+
+        return ! empty($this->directorioEntries[$providerKey] ?? []);
     }
 
     protected function resolveProviderContext(SolicitudPagoDetalle $record): array
