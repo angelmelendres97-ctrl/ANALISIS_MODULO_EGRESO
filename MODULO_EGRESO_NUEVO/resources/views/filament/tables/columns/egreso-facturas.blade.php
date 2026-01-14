@@ -1,5 +1,5 @@
 @php
-    $facturas = $getState() ?? [];
+    $facturas = $facturas ?? ($getState() ?? []);
 @endphp
 
 @if (empty($facturas))

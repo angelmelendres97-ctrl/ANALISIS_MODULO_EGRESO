@@ -47,17 +47,16 @@ class EgresoSolicitudPagoResource extends Resource
                 TextColumn::make('motivo')
                     ->label('Motivo')
                     ->limit(40),
-                TextColumn::make('monto_aprobado')
-                    ->label('Monto aprobado')
-                    ->money('USD')
-                    ->sortable(),
                 TextColumn::make('monto_utilizado')
-                    ->label('Monto utilizado')
+                    ->label('Abono a pagar')
                     ->money('USD')
                     ->sortable(),
                 TextColumn::make('estado')
                     ->badge()
-                    ->color('success')
+                    ->formatStateUsing(fn(string $state): string => strtoupper($state) === 'APROBADA'
+                        ? 'Aprobada y pendiente de egreso'
+                        : $state)
+                    ->color(fn(string $state): string => strtoupper($state) === 'APROBADA' ? 'warning' : 'gray')
                     ->label('Estado'),
             ])
             ->actions([
